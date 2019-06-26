@@ -5,7 +5,7 @@ import sqlite3
 import requests
 
 def clean_wikipedia(text):
-    soup = BeautifulSoup(result.text, 'html.parser')
+    soup = BeautifulSoup(text, 'html.parser')
     article = soup.find(id="mw-content-text")
 
     content = article.find_all('p')
