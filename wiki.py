@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
-import sqlite3
 import requests
+import json
 
 def clean_wikipedia(text):
     soup = BeautifulSoup(text, 'html.parser')
@@ -16,19 +16,16 @@ def clean_wikipedia(text):
 
     return save
 
-con = sqlite3.connect("db.sqlite")
-cur = con.cursor()
-
 result = requests.get("https://en.wikipedia.org/wiki/Reparations_for_slavery")
-cur.execute("INSERT INTO wikipedia_pages (is_rep, article) VALUES (?, ?)", (True, clean_wikipedia(result.text)))
+wp_article_file = open("data/wp_reparations_article", "w")
+wp_article_file.write(clean_wikipedia(result.text))
+wp_article_file.close()
 
+articles = []
 for x in range(1000):
     result = requests.get("https://en.wikipedia.org/wiki/Special:Random")
-    cur.execute(
-        "INSERT INTO wikipedia_pages (is_rep, article) VALUES (?, ?)",
-        (False, clean_wikipedia(result.text))
-    )
+    articles.append(clean_wikipedia(result.text))
 
-con.commit()
-cur.close()
-con.close()
+articles_file = open("data/wp_articles.json", "w")
+articles_file.write(json.JSONEncoder().encode(articles))
+articles_file.close()
